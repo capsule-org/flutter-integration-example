@@ -46,11 +46,19 @@ class _CapsuleDemoState extends State<CapsuleDemo> {
               'This app demonstrates the usage of Capsule\'s SDK for Flutter. Please select the authentication method below.',
         ),
         Expanded(
-          child: Center(
-            child: CustomButton(
-              onPressed: _togglePasskeyAuth,
-              title: 'Email + Native Passkeys (Recommended)',
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CustomButton(
+                onPressed: _togglePasskeyAuth,
+                title: 'Auth with Email & Passkeys',
+              ),
+              CustomButton(
+                onPressed: _togglePasskeyAuth,
+                title: 'Solana Support Coming Soon',
+                disabled: true,
+              ),
+            ],
           ),
         ),
       ],
