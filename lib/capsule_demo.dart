@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_integration_example/example/passkey_auth_example.dart';
+import 'package:flutter_integration_example/passkey_auth_example.dart';
 import 'package:flutter_integration_example/widgets/button.dart';
 import 'package:flutter_integration_example/widgets/header.dart';
 
