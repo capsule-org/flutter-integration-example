@@ -3,7 +3,7 @@ import 'package:flutter_integration_example/widgets/button.dart';
 import 'package:flutter_integration_example/widgets/copyable_text.dart';
 import 'package:flutter_integration_example/widgets/input.dart';
 
-class AuthenticatedState extends StatelessWidget {
+class AuthenticatedState extends StatefulWidget {
   final String walletId;
   final String walletAddress;
   final String? recoveryShare;
@@ -26,26 +26,51 @@ class AuthenticatedState extends StatelessWidget {
   });
 
   @override
+  _AuthenticatedStateState createState() => _AuthenticatedStateState();
+}
+
+class _AuthenticatedStateState extends State<AuthenticatedState> {
+  late TextEditingController _messageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _messageController = TextEditingController(text: widget.messageToSign);
+    _messageController.addListener(_onMessageChanged);
+  }
+
+  @override
+  void dispose() {
+    _messageController.removeListener(_onMessageChanged);
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  void _onMessageChanged() {
+    widget.setMessageToSign(_messageController.text);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
       child: Column(
         children: [
-          CopyableText(label: 'Wallet ID', value: walletId),
-          CopyableText(label: 'Wallet Address', value: walletAddress),
-          if (recoveryShare != null) CopyableText(label: 'Recovery Share', value: recoveryShare!),
+          CopyableText(label: 'Wallet ID', value: widget.walletId),
+          CopyableText(label: 'Wallet Address', value: widget.walletAddress),
+          if (widget.recoveryShare != null) CopyableText(label: 'Recovery Share', value: widget.recoveryShare!),
           CustomInput(
-            value: messageToSign,
-            onChanged: setMessageToSign,
+            controller: _messageController,
             placeholder: 'Enter message to sign',
             multiline: true,
           ),
           CustomButton(
-            onPressed: handleSignMessage,
+            disabled: widget.messageToSign.isEmpty,
+            onPressed: widget.handleSignMessage,
             title: 'Sign Message',
-            loading: isLoading,
+            loading: widget.isLoading,
           ),
-          if (signedMessage.isNotEmpty) CopyableText(label: 'Signed Message', value: signedMessage),
+          if (widget.signedMessage.isNotEmpty) CopyableText(label: 'Signed Message', value: widget.signedMessage),
         ],
       ),
     );

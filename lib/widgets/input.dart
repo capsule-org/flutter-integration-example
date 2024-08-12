@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomInput extends StatelessWidget {
-  final String value;
-  final ValueChanged<String> onChanged;
+  final TextEditingController controller;
   final String placeholder;
   final TextInputType keyboardType;
   final TextCapitalization textCapitalization;
@@ -10,8 +9,7 @@ class CustomInput extends StatelessWidget {
 
   const CustomInput({
     super.key,
-    required this.value,
-    required this.onChanged,
+    required this.controller,
     required this.placeholder,
     this.keyboardType = TextInputType.text,
     this.textCapitalization = TextCapitalization.none,
@@ -24,8 +22,7 @@ class CustomInput extends StatelessWidget {
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
       child: TextField(
-        controller: TextEditingController(text: value),
-        onChanged: onChanged,
+        controller: controller,
         decoration: InputDecoration(
           filled: true,
           fillColor: Colors.white,
@@ -37,7 +34,7 @@ class CustomInput extends StatelessWidget {
             borderSide: BorderSide.none,
           ),
         ),
-        style: const TextStyle(fontSize: 16),
+        style: const TextStyle(fontSize: 16, color: Colors.black),
         keyboardType: keyboardType,
         textCapitalization: textCapitalization,
         maxLines: multiline ? null : 1,

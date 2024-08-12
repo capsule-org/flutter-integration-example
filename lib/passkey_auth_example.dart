@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:capsule/capsule.dart';
 import 'package:flutter_integration_example/widgets/header.dart';
@@ -27,10 +29,34 @@ class _NativePasskeysAuthExampleState extends State<NativePasskeysAuthExample> {
   String recoveryShare = '';
   bool isLoading = false;
 
+  late TextEditingController _emailController;
+  late TextEditingController _verificationCodeController;
+
   @override
   void initState() {
     super.initState();
     _initializeCapsuleSDK();
+    _emailController = TextEditingController();
+    _verificationCodeController = TextEditingController();
+
+    _emailController.addListener(() {
+      setState(() {
+        email = _emailController.text;
+      });
+    });
+
+    _verificationCodeController.addListener(() {
+      setState(() {
+        verificationCode = _verificationCodeController.text;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _verificationCodeController.dispose();
+    super.dispose();
   }
 
   void _initializeCapsuleSDK() {
@@ -65,7 +91,7 @@ class _NativePasskeysAuthExampleState extends State<NativePasskeysAuthExample> {
   }
 
   Future<void> _handleCreateUser() async {
-    if (email.isEmpty) {
+    if (_emailController.text.isEmpty) {
       setState(() => error = 'Email address cannot be empty');
       return;
     }
@@ -76,7 +102,7 @@ class _NativePasskeysAuthExampleState extends State<NativePasskeysAuthExample> {
     });
 
     try {
-      await _capsule.createUser(email);
+      await _capsule.createUser(_emailController.text);
       setState(() => authStage = 'verification');
     } catch (err) {
       setState(() => error = 'Failed to create user: $err');
@@ -86,7 +112,7 @@ class _NativePasskeysAuthExampleState extends State<NativePasskeysAuthExample> {
   }
 
   Future<void> _handleVerification() async {
-    if (verificationCode.isEmpty) {
+    if (_verificationCodeController.text.isEmpty) {
       setState(() => error = 'Verification code cannot be empty');
       return;
     }
@@ -97,8 +123,8 @@ class _NativePasskeysAuthExampleState extends State<NativePasskeysAuthExample> {
     });
 
     try {
-      final biometricsId = await _capsule.verifyEmail(verificationCode);
-      await _capsule.generatePasskey(email, biometricsId);
+      final biometricsId = await _capsule.verifyEmail(_verificationCodeController.text);
+      await _capsule.generatePasskey(_emailController.text, biometricsId);
       final result = await _capsule.createWallet(skipDistribute: false);
       setState(() {
         authStage = 'authenticated';
@@ -138,7 +164,7 @@ class _NativePasskeysAuthExampleState extends State<NativePasskeysAuthExample> {
   }
 
   Future<void> _handleSignMessage() async {
-    if (walletId.isEmpty || messageToSign.trim().isEmpty) {
+    if (walletId.isEmpty || messageToSign.isEmpty) {
       setState(() => error = 'Please enter a message to sign.');
       return;
     }
@@ -149,9 +175,10 @@ class _NativePasskeysAuthExampleState extends State<NativePasskeysAuthExample> {
     });
 
     try {
+      final base64message = base64.encode(utf8.encode(messageToSign));
       final signatureResponse =
-          await _capsule.signMessage(walletId: walletId, messageBase64: messageToSign) as SuccessfulSignatureResult;
-      setState(() => signedMessage = '0x${signatureResponse.signature}');
+          await _capsule.signMessage(walletId: walletId, messageBase64: base64message) as SuccessfulSignatureResult;
+      setState(() => signedMessage = signatureResponse.signature);
     } catch (err) {
       setState(() => error = 'Failed to sign message: $err');
     } finally {
@@ -174,10 +201,9 @@ class _NativePasskeysAuthExampleState extends State<NativePasskeysAuthExample> {
   void _resetState() {
     setState(() {
       authStage = 'initial';
-      email = '';
-      verificationCode = '';
+      _emailController.clear();
+      _verificationCodeController.clear();
       messageToSign = '';
-      signedMessage = '';
       error = '';
       walletAddress = '';
       walletId = '';
@@ -238,8 +264,7 @@ class _NativePasskeysAuthExampleState extends State<NativePasskeysAuthExample> {
           mainAxisSize: MainAxisSize.min,
           children: [
             CustomInput(
-              value: email,
-              onChanged: (value) => setState(() => email = value),
+              controller: _emailController,
               placeholder: 'Enter your email',
               keyboardType: TextInputType.emailAddress,
             ),
@@ -274,8 +299,7 @@ class _NativePasskeysAuthExampleState extends State<NativePasskeysAuthExample> {
           mainAxisSize: MainAxisSize.min,
           children: [
             CustomInput(
-              value: verificationCode,
-              onChanged: (value) => setState(() => verificationCode = value),
+              controller: _verificationCodeController,
               placeholder: 'Enter verification code',
               keyboardType: TextInputType.number,
             ),
