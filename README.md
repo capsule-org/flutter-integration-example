@@ -1,3 +1,8 @@
+# ARCHIVED
+
+Please refer to the latest examples on the
+[Capsule Docs Examples Hub](https://docs.usecapsule.com/getting-started/examples)
+
 # Capsule SDK Flutter Integration
 
 The Capsule SDK for Flutter allows you to easily integrate secure and scalable wallet functionalities into your mobile applications. This example project demonstrates how to integrate the Capsule SDK into a Flutter application. With Capsule, you can implement features such as:
